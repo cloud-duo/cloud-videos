@@ -18,7 +18,7 @@ namespace cloud_videos.Controllers
         [Route("test")]
         public int Test()
         {
-            return 42;
+            return 43;
         }
     }
 }
