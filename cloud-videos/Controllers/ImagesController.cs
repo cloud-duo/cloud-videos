@@ -3,18 +3,19 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using cloud_videos.Handlers;
 using cloud_videos.Helpers;
 using cloud_videos.Models;
 using Microsoft.WindowsAzure.Storage;
 
 namespace cloud_videos.Controllers
 {
-    public class VideosController : ApiController
+    public class ImagesController : ApiController
     {
-        private const string ShareName = "videos";
+        private const string ShareName = "images";
 
         [HttpPost]
-        [Route("api/videos")]
+        [Route("api/images")]
         public async Task<IHttpActionResult> Upload()
         {
             if (!Request.Content.IsMimeMultipartContent())
@@ -44,6 +45,13 @@ namespace cloud_videos.Controllers
             }
 
             return Ok(new UploadResult(cloudFilename));
+        }
+
+        [HttpGet]
+        [Route("api/images/desc/{filename}")]
+        public async Task<IHttpActionResult> Description(string filename)
+        {
+            return Ok(await new DescHandler().Run(filename));
         }
     }
 }
