@@ -14,5 +14,11 @@ namespace cloud_videos.Controllers
 
             return View();
         }
+
+        [Route("test")]
+        public int Test()
+        {
+            return 42;
+        }
     }
 }
