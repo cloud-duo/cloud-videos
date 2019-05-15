@@ -26,5 +26,15 @@ namespace cloud_videos.Helpers
                 return items.subkey;
             }
         }
+
+        public static string GetTextToSpeechKey()
+        {
+            using (var r = new StreamReader(HttpContext.Current.Server.MapPath("~\\config.json")))
+            {
+                var json = r.ReadToEnd();
+                var items = JsonConvert.DeserializeObject<dynamic>(json);
+                return items.texttospeechkey;
+            }
+        }
     }
 }

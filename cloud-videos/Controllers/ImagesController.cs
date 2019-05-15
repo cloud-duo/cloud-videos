@@ -53,5 +53,12 @@ namespace cloud_videos.Controllers
         {
             return Ok(await new DescHandler().Run(filename + ".jpg"));
         }
+
+        [HttpPost]
+        [Route("api/images/tts")]
+        public async Task<IHttpActionResult> TextToSpeech(TtsRequest ttsRequest)
+        {
+            return Ok(await new TtsHandler().Run(ttsRequest.Text));
+        }
     }
 }
