@@ -39,7 +39,7 @@ namespace cloud_videos.Controllers
 
                 var rootDirectory = share.GetRootDirectoryReference();
 
-                var cloudFile = rootDirectory.GetFileReference(cloudFilename);
+                var cloudFile = rootDirectory.GetFileReference(cloudFilename + ".jpg");
 
                 await cloudFile.UploadFromByteArrayAsync(buffer, 0, buffer.Length);
             }
@@ -51,7 +51,7 @@ namespace cloud_videos.Controllers
         [Route("api/images/desc/{filename}")]
         public async Task<IHttpActionResult> Description(string filename)
         {
-            return Ok(await new DescHandler().Run(filename));
+            return Ok(await new DescHandler().Run(filename + ".jpg"));
         }
     }
 }

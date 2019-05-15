@@ -1,12 +1,13 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
-using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using cloud_videos.Helpers;
 using cloud_videos.Models;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.WindowsAzure.Storage;
-using Newtonsoft.Json;
 
 namespace cloud_videos.Handlers
 {
@@ -14,7 +15,15 @@ namespace cloud_videos.Handlers
     {
         private const string ShareName = "images";
 
-        private async Task<MemoryStream> GetImage(string filename)
+        private static readonly List<VisualFeatureTypes> Features =
+            new List<VisualFeatureTypes>
+            {
+                VisualFeatureTypes.Categories,
+                VisualFeatureTypes.Description,
+                VisualFeatureTypes.Tags
+            };
+
+        private static async Task<MemoryStream> GetImage(string filename)
         {
             var storageAccount = CloudStorageAccount.Parse(ConfigHelper.GetStorageConnectionString());
 
@@ -30,14 +39,26 @@ namespace cloud_videos.Handlers
 
             var stream = new MemoryStream();
 
-            await cloudFile.DownloadToStreamAsync(stream).ConfigureAwait(false);
+            await cloudFile.DownloadToStreamAsync(stream);
 
             return stream;
         }
 
-        public async Task<DescResult> Run(string filename)
+        public async Task<ImageAnalysis> Run(string filename)
         {
-            return null;
+            var computerVision =
+                new ComputerVisionClient(new ApiKeyServiceClientCredentials(ConfigHelper.GetSubscriptionKey()))
+                {
+                    Endpoint = "https://northeurope.api.cognitive.microsoft.com/"
+                };
+
+            var imageStream = await GetImage(filename);
+
+            var image = Image.FromStream(imageStream);
+
+            var analysis = await computerVision.AnalyzeImageInStreamAsync(image.ToStream(ImageFormat.Jpeg), Features);
+
+            return analysis;
         }
     }
 }

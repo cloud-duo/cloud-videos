@@ -16,5 +16,15 @@ namespace cloud_videos.Helpers
                 return items.key;
             }
         }
+
+        public static string GetSubscriptionKey()
+        {
+            using (var r = new StreamReader(HttpContext.Current.Server.MapPath("~\\config.json")))
+            {
+                var json = r.ReadToEnd();
+                var items = JsonConvert.DeserializeObject<dynamic>(json);
+                return items.subkey;
+            }
+        }
     }
 }
