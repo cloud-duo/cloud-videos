@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Media;
 using System.Threading.Tasks;
-using System.Web;
 using cloud_videos.Helpers;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.WindowsAzure.Storage;
+using NAudio.Wave;
 
 namespace cloud_videos.Handlers
 {
@@ -20,6 +20,7 @@ namespace cloud_videos.Handlers
             // The default language is "en-us".
 
             var config = SpeechConfig.FromSubscription(ConfigHelper.GetTextToSpeechKey(), "northeurope");
+            config.SetSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio16Khz64KBitRateMonoMp3);
 
             // Creates a speech synthesizer using the default speaker as audio output.
             using (var synthesizer = new SpeechSynthesizer(config))
@@ -37,7 +38,7 @@ namespace cloud_videos.Handlers
 
                     var rootDirectory = share.GetRootDirectoryReference();
 
-                    var fileName = Guid.NewGuid().ToString() + ".mp3";
+                    var fileName = Guid.NewGuid() + ".mp3";
 
                     var cloudFile = rootDirectory.GetFileReference(fileName);
 
