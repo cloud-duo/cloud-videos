@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using cloud_videos.Handlers;
 using cloud_videos.Helpers;
 using cloud_videos.Models;
@@ -10,6 +11,7 @@ using Microsoft.WindowsAzure.Storage;
 
 namespace cloud_videos.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class ImagesController : ApiController
     {
         private const string ShareName = "images";
@@ -52,6 +54,13 @@ namespace cloud_videos.Controllers
         public async Task<IHttpActionResult> Description(string filename)
         {
             return Ok(await new DescHandler().Run(filename + ".jpg"));
+        }
+
+        [HttpPost]
+        [Route("api/images/descg")]
+        public async Task<IHttpActionResult> DescriptionG(DescRequest request)
+        {
+            return Ok(await new DescHandler().RunG(request));
         }
 
         [HttpPost]

@@ -7,6 +7,6 @@ namespace cloud_videos.Models
 {
     public class TtsRequest
     {
-        public string Text { get; set; }
+        public IEnumerable<string> Text { get; set; }
     }
 }

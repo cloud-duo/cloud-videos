@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Media;
 using System.Threading.Tasks;
+using System.Web;
 using cloud_videos.Helpers;
+using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Storage.V1;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.WindowsAzure.Storage;
 using NAudio.Wave;
@@ -11,38 +16,31 @@ namespace cloud_videos.Handlers
 {
     public class TtsHandler
     {
-        private const string ShareName = "sounds";
 
-        public async Task<string> Run(string text)
+        public async Task<string> Run(IEnumerable<string> text)
         {
             // Creates an instance of a speech config with specified subscription key and service region.
             // Replace with your own subscription key and service region (e.g., "westus").
             // The default language is "en-us".
 
-            var config = SpeechConfig.FromSubscription(ConfigHelper.GetTextToSpeechKey(), "northeurope");
+            var config = SpeechConfig.FromSubscription(ConfigHelper.GetTextToSpeechKey(), "francecentral");
             config.SetSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio16Khz64KBitRateMonoMp3);
+
 
             // Creates a speech synthesizer using the default speaker as audio output.
             using (var synthesizer = new SpeechSynthesizer(config))
             {
+                var storageClient =
+                    await StorageClient.CreateAsync(
+                        GoogleCredential.FromFile(HttpContext.Current.Server.MapPath("~\\keys.json")));
 
-                using (var result = await synthesizer.SpeakTextAsync(text))
+                using (var result = await synthesizer.SpeakTextAsync(text.Aggregate((i, j) => i + "\n" + j)))
                 {
-                    var storageAccount = CloudStorageAccount.Parse(ConfigHelper.GetStorageConnectionString());
-
-                    var fileClient = storageAccount.CreateCloudFileClient();
-
-                    var share = fileClient.GetShareReference(ShareName);
-
-                    await share.CreateIfNotExistsAsync();
-
-                    var rootDirectory = share.GetRootDirectoryReference();
-
                     var fileName = Guid.NewGuid() + ".mp3";
 
-                    var cloudFile = rootDirectory.GetFileReference(fileName);
+                    await storageClient.UploadObjectAsync("galeata_magica_123", fileName, null,
+                        new MemoryStream(result.AudioData));
 
-                    await cloudFile.UploadFromByteArrayAsync(result.AudioData, 0, result.AudioData.Length);
 
                     return fileName;
                 }
